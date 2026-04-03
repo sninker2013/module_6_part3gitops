@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: transactions-sync
+  labels:
+    app: transactions-sync
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: transactions-sync
+  template:
+    metadata:
+      labels:
+        app: transactions-sync
+    spec:
+      imagePullSecrets:
+        - name: ghcr-creds
+      containers:
+        - name: syncer
+          image: ghcr.io/sninker2013/module_6_part3-syncer:90f52e42cf5619a7b5f6263c1add797708cea1b2
+          env:
+            - name: SRC_URI
+              value: mongodb://mongo-backend:27017
+            - name: SRC_DB
+              value: bank_app
+            - name: DEST_URI
+              value: mongodb://mongo-transactions:27017
+            - name: DEST_DB
+              value: transactions_db
+            - name: INTERVAL_SECONDS
+              value: "300"
+          resources:
+            requests:
+              cpu: "25m"
+              memory: "64Mi"
+            limits:
+              cpu: "200m"
+              memory: "128Mi"
